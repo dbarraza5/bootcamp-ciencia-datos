@@ -321,7 +321,7 @@ st.altair_chart(plot10)
 #-----------------------------------------------------------------------------------------------------------------------
 st.subheader("Mapa de calor de la cantidad de tweets por cada estado")
 
-from vega_datasets import datos as vega_data
+from vega_datasets import data as vega_data
 
 pop = vega_data.population_engineers_hurricanes()
 pop = pop.drop(['population', 'engineers', 'hurricanes'], axis=1)

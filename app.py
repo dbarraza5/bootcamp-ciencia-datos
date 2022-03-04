@@ -319,7 +319,8 @@ plot10 = alt.Chart(df_fecha_tweets_reason).mark_line().encode(
 st.altair_chart(plot10)
 
 #-----------------------------------------------------------------------------------------------------------------------
-st.subheader("Mapa de calor de la cantidad de tweets por cada estado")
+st.subheader("Mapa de calor")
+st.write("Cantidad de tweets por cada estado")
 
 from vega_datasets import data as vega_data
 
@@ -345,11 +346,9 @@ states_issue = states_issue.reset_index()
 
 #Join entre el dataset de huracanes y el dataset creado con las cantidad de tweet
 states_issue_merge = pd.merge(states_issue,pop,on='state')
-
+states_issue_merge=states_issue_merge.sort_values(by='cantidad', ascending=False)
 states = alt.topo_feature(vega_data.us_10m.url, 'states')
-states_issue_merge = states_issue_merge.iloc[:1]
-states_issue_merge.iloc[0]["cantidad"] = 100
-states_issue_merge.iloc[0]["id"] = 1
+
 plot_map = alt.Chart(states).mark_geoshape().encode(
     color='cantidad:Q',
     tooltip=[
@@ -359,41 +358,84 @@ plot_map = alt.Chart(states).mark_geoshape().encode(
 ).transform_lookup(
     lookup='id',
     from_=alt.LookupData(states_issue_merge, 'id',
-                         list(states_issue_merge.columns))
+                         ["state","cantidad"])
 ).properties(
     width=500,
     height=300
 ).project(
     type='albersUsa'
 )
+
 
 st.altair_chart(plot_map)
 
-st.dataframe(states_issue_merge)
-st.write(states_issue_merge.shape)
+st.dataframe(states_issue_merge[["state", "cantidad"]])
 #-----------------------------------------------------------------------------------------------------------------------
-st.subheader("Cantidad de tweets por sentimientos")
+st.subheader("Cantidad de incidencias por estado")
+st.write("""
+Primero se elige un tipo de incidencia e inmediatamente se agrupan los datos  por aerolínea y finalmente se cuenta las 
+incidencias por cada estado.
+""")
+incidencias = df["negativereason"].unique()[1:]
+option5 = st.selectbox(
+     'Selecciona una incidencia',
+     incidencias)
 
-states = alt.topo_feature(vega_data.us_10m.url, 'states')
+#seleccionando las columnas relevantes
+df_localidad = df[["negativereason", "airline", "tweet_location"]]
+#renombrando la columna para hacer el join por el mismo nombre
+df_localidad=df_localidad.rename(columns={'tweet_location': 'localidad'})
+#join de los dataframe
+df_state_reason = pd.merge(df_localidad,df_cities[["localidad","state"]],on='localidad')
+#eliminando la columna que solo servia de puente
+df_state_reason=df_state_reason.drop(['localidad'], axis=1)
+#eliminando los tweets que no son negativos
+df_state_reason.dropna(subset = ["negativereason"], inplace=True)
+df_state_reason= pd.merge(df_state_reason,pop,on='state')
 
+#filtrando el dataframe por la incidencia a graficar
+group_issue_state = df_state_reason[df_state_reason["negativereason"] == option5]
+#quitando la columna negativereason
+group_issue_state = group_issue_state[["airline", "state", "id"]]
+#agrupando por aerolinea y contado los tweets
+serie = group_issue_state.groupby(["airline", "state", "id"]).size()
+df_aux = serie.index.to_frame(index=None)
+df_aux["cantidad"] = serie.values
 
-pop = vega_data.population_engineers_hurricanes()
-variable_list = ['population', 'engineers', 'hurricanes']
+lista_aerolineas = df_aux["airline"].unique()
+df_sta_aero = pd.DataFrame(columns=["airline", "state", "id"])
+for aero in lista_aerolineas:
+    for i_state in range(pop.shape[0]):
+        state = pop.iloc[i_state]["state"]
+        id_ = pop.iloc[i_state]["id"]
+        df_sta_aero.loc[df_sta_aero.shape[0]] = {"airline": aero,
+                                                 "state": state,
+                                                 "id": id_}
 
-plot12123 = alt.Chart(states).mark_geoshape().encode(
-    color='population:Q'
+df_all_state_air = pd.merge(df_aux, df_sta_aero, on=['airline', 'state', 'id'], how='outer')
+df_all_state_air["id"] = df_all_state_air["id"].astype(int)
+df_all_state_air["cantidad"] = df_all_state_air["cantidad"].fillna(value=0)
+
+plot22 = alt.Chart(df_all_state_air).mark_geoshape().encode(
+    shape='geo:G',
+    color='cantidad:Q',
+    tooltip=['state:N', 'cantidad:Q'],
+    facet=alt.Facet('airline:N', columns=2),
 ).transform_lookup(
     lookup='id',
-    from_=alt.LookupData(pop, 'id', list(pop.columns))
+    from_=alt.LookupData(data=states, key='id'),
+    as_='geo'
 ).properties(
-    width=500,
-    height=300
+    width=300,
+    height=175,
 ).project(
     type='albersUsa'
 )
 
-st.altair_chart(plot12123)
+
+st.altair_chart(plot22)
 
 #-----------------------------------------------------------------------------------------------------------------------
 st.subheader("Cantidad de tweets por sentimientos")
+
 st.altair_chart(plot1)

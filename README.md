@@ -17,3 +17,6 @@ pip install vega_datasets
 
 https://scikit-learn.org/stable/install.html  
 pip install -U scikit-learn
+
+https://www.geeksforgeeks.org/beautifulsoup-installation-python/  
+pip install beautifulsoup4

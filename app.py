@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 import altair as alt
 
-st.title("Análisis Tweets de aerolíneas de USA")
+st.title("Análisis de tweets de aerolíneas de USA")
 st.header("Fuente de información")
 st.write(
     """
@@ -105,7 +105,7 @@ st.altair_chart(gp_chart)
 #-----------------------------------------------------------------------------------------------------------------------
 st.subheader("Cantidad de incidencias en total")
 
-st.write("los tweets negativos están categorizados en diferentes incidencias.")
+st.write("los tweets negativos están categorizados en diferentes tipos incidencias.")
 
 incidencias = df["negativereason"].value_counts()
 source = pd.DataFrame({
@@ -148,7 +148,10 @@ for air, atr in serie.index:
     }
 
 plo5 = alt.Chart(df_airline_reason).mark_rect().encode(
-    x='airline:O',
+    #x='airline:O',
+    x=alt.X('airline', axis=alt.Axis(
+                                    labelAngle=-45,
+                                    )),
     y='negativereason:O',
     tooltip=[
         alt.Tooltip('cantidad:Q', title="% issue"),
@@ -436,6 +439,62 @@ plot22 = alt.Chart(df_all_state_air).mark_geoshape().encode(
 st.altair_chart(plot22)
 
 #-----------------------------------------------------------------------------------------------------------------------
-st.subheader("Cantidad de tweets por sentimientos")
+st.header("Modelo de clasificación de sentimiento")
 
-st.altair_chart(plot1)
+st.write("Usando Word embbeding para clasificar los tweets en diferentes categorías.")
+st.write("http://jalammar.github.io/illustrated-word2vec/")
+
+text = st.text_input('Ingrese el texto a clasificar', 'my flight was Cancelled')
+import re
+#texto en varios formatos, limpiar los texto
+from bs4 import BeautifulSoup
+import pickle
+from sklearn.neural_network import MLPClassifier
+w2v_model = pickle.load( open( "datos/embbeding.p", "rb" ) )
+clf_bk = pickle.load( open( "datos/modelo.p", "rb" ) )
+
+def tokenize(tweet):
+    tweet = BeautifulSoup(tweet, "lxml").get_text()
+    # Eliminamos la @ y su mención
+    tweet = re.sub(r"@[A-Za-z0-9]+", '_Entidad_', tweet)
+    # Eliminamos los links de las URLs
+    tweet = re.sub(r"https?://[A-Za-z0-9./]+", ' ', tweet)
+    # Nos quedamos solamente con los caracteres
+    tweet = re.sub(r"[^a-zA-Z.!?']", ' ', tweet)
+    # Eliminamos espacios en blanco adicionales
+    tweet = re.sub(r" +", ' ', tweet)
+    return tweet.split()
+
+def promedioListaPalabras(lista_palabras, embbeding):
+    temp = []
+    for palabra in lista_palabras:
+        if palabra in embbeding:
+            embbeding_word = np.round(embbeding.__getitem__(palabra),5)
+            temp.append(list(embbeding_word))
+    if len(temp)>0:
+        return pd.Series(np.array(temp).mean(axis = 0))
+    return np.zeros(300)
+
+l = tokenize(text)
+tweet_embbeding = promedioListaPalabras(l, w2v_model.wv)
+predict = clf_bk.predict_proba([tweet_embbeding])
+
+source = pd.DataFrame({
+    'clases':['neutral', 'negative', 'positive'],
+    'probabilidad': predict[0]
+})
+plot_predict =alt.Chart(source).mark_bar().encode(
+
+    x=alt.X('clases',axis=alt.Axis(
+                                    labelAngle=0,
+                                    )),
+    y='probabilidad',
+    tooltip=[
+        alt.Tooltip('tweets:Q', title="Total tweets"),
+    ]
+).properties(
+    width=400,
+    height=300
+)
+
+st.altair_chart(plot_predict)

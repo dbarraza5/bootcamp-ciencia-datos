@@ -14,3 +14,6 @@ pip install altair==4.2.0rc1
   
 https://pypi.org/project/vega-datasets/  
 pip install vega_datasets  
+
+https://scikit-learn.org/stable/install.html
+pip install scikit-learn==0.23.2

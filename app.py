@@ -448,7 +448,7 @@ st.altair_chart(plot22)
 #-----------------------------------------------------------------------------------------------------------------------
 st.header("Modelo de clasificación de sentimientos")
 
-st.write("Usando Word embbeding para clasificar los tweets en diferentes categorías.")
+st.write("Usando Word embbeding para clasificar los tweets en diferentes tipos de sentimientos.")
 st.write("http://jalammar.github.io/illustrated-word2vec/")
 
 text = st.text_input('Ingrese el texto a clasificar', 'my flight was Cancelled')

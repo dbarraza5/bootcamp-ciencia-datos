@@ -5,6 +5,11 @@ Repositorio enmarcado como proyecto final del bootcamp de ciencia de datos de C�
 
 ### notebook del proyecto en google colab  
 https://colab.research.google.com/drive/160bMY9djT-pzfqJ0cYn8BXFq0ojX7pBJ?usp=sharing
+
+### streamlit
+
+https://share.streamlit.io/dbarraza5/bootcamp-ciencia-datos/main/app.py  
+
 ### Configuración del entorno
 
 gensim es una librería para el procesamiento de lenguaje natural creada por Radim Řehůřek.  

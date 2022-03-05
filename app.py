@@ -5,6 +5,13 @@ import numpy as np
 import altair as alt
 
 st.title("Análisis de tweets de aerolíneas de USA")
+
+st.header("Introducción ")
+st.write("""
+Proyecto trata sobre el análisis de sentimiento de los tweets que deja la personas con respecto a las aerolíneas de USA.
+ en una primera instancia se trata de explorar y visualizar los datos en búsqueda de regularidades y correlaciones, y en un segundo apartado se trata abordar el problema de clasificación de sentimiento con una herramienta de NLP llamada Word embbeding.
+""")
+
 st.header("Fuente de información")
 st.write(
     """
@@ -439,7 +446,7 @@ plot22 = alt.Chart(df_all_state_air).mark_geoshape().encode(
 st.altair_chart(plot22)
 
 #-----------------------------------------------------------------------------------------------------------------------
-st.header("Modelo de clasificación de sentimiento")
+st.header("Modelo de clasificación de sentimientos")
 
 st.write("Usando Word embbeding para clasificar los tweets en diferentes categorías.")
 st.write("http://jalammar.github.io/illustrated-word2vec/")

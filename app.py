@@ -331,7 +331,10 @@ st.altair_chart(plot10)
 #-----------------------------------------------------------------------------------------------------------------------
 st.subheader("Mapa de calor")
 st.write("Cantidad de tweets por cada estado")
+st.write("""
+El numero de incidencias por estado se corresponde con la densidad poblacional de cada uno de los ellos.
 
+""")
 from vega_datasets import data as vega_data
 
 pop = vega_data.population_engineers_hurricanes()

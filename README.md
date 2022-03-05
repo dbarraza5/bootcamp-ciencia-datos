@@ -1,7 +1,8 @@
 # bootcamp-ciencia-datos
 Repositorio enmarcado como proyecto final del bootcamp de ciencia de datos de Código Facilito. 
 
-
+[pdf presentación ](https://1drv.ms/b/s!ArmZqrYOBZJRjOcte_fusvr8oouKJA?e=hpY1xI)  
+  
 ### Configuración del entorno
 
 gensim es una librería para el procesamiento de lenguaje natural creada por Radim Řehůřek.  

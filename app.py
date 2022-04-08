@@ -454,6 +454,41 @@ st.header("Modelo de clasificación de sentimientos")
 st.write("Usando Word embbeding para clasificar los tweets en diferentes tipos de sentimientos.")
 st.write("http://jalammar.github.io/illustrated-word2vec/")
 
+st.subheader("Resultado del modelo de predicción")
+#st.write("0: neutral, 1: negative, 2: positive")
+df_predict = {"precision": [0.65, .79, .77, None,.74, .76], "recall":[.44, .93, .57, None, .65, .77], 
+              "f1-score":[.52, .85, .65, .77, .68, .77], "support":[499, 1469, 378 ,2343 ,2343, 2343]}
+df_predict = pd.DataFrame(df_predict, index=["neutral", "negative", "positive", "accuracy", "macri avg", "weighted avg"])
+st.table(df_predict)
+
+# Confusion matrix
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+matrix = np.array([[ 216,  244,   36],
+       [  75, 1364,   30],
+       [  40,  122,  216]])
+x = ["neutral", "negative", "positive"]
+y = ['neutral', "negative", "positive"]
+
+df_matrix = pd.DataFrame(matrix, columns=y, index = x)
+df_matrix.index.name = 'Actual'
+df_matrix.columns.name = 'Predicted'
+
+plot_matrix=plt.figure(figsize = (9,6))
+sns.set(font_scale=1.4)
+plt.title("Matrix confusion")
+matrix = sns.heatmap(df_matrix, cmap = 'plasma', annot=True,
+                     annot_kws = {"size": 20}, fmt = "")
+
+st.pyplot(plot_matrix)
+
+#-----------------------------------------------------------------------------------------------------------------------
+
+
+st.subheader("Predicción de tweets")
+
 text = st.text_input('Ingrese el texto a clasificar', 'my flight was Cancelled')
 import re
 #texto en varios formatos, limpiar los texto

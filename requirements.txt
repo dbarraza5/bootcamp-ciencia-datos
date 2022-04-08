@@ -3,3 +3,4 @@ gensim==4.1.2
 beautifulsoup4
 lxml
 scikit-learn
+seaborn
